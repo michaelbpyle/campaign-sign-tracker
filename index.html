@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Campaign Sign Delivery Tracker</title>
+    <title>Sign Delivery Tracker</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
@@ -181,6 +181,7 @@
         }
         .delivery-list tr:hover {
             background: #f5f5f5;
+            cursor: pointer;
         }
         .status-icon {
             font-size: 1.2rem;
@@ -208,36 +209,17 @@
             align-items: center;
             gap: 8px;
         }
-        .legend-dot {
-            width: 16px;
-            height: 16px;
-            border-radius: 50%;
+        .legend-marker {
+            width: 25px;
+            height: 41px;
+            background-size: contain;
+            background-repeat: no-repeat;
         }
-        .legend-dot.red {
-            background: #f44336;
-            box-shadow: 0 0 8px #f44336;
+        .legend-marker.red {
+            background-image: url('https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png');
         }
-        .legend-dot.green {
-            background: #4caf50;
-            box-shadow: 0 0 8px #4caf50;
-        }
-
-        /* Pulsing marker animations */
-        @keyframes pulse-red {
-            0% { transform: scale(1); opacity: 0.9; }
-            50% { transform: scale(1.3); opacity: 0.6; }
-            100% { transform: scale(1); opacity: 0.9; }
-        }
-        @keyframes pulse-green {
-            0% { transform: scale(1); opacity: 0.9; }
-            50% { transform: scale(1.2); opacity: 0.7; }
-            100% { transform: scale(1); opacity: 0.9; }
-        }
-        .pulse-red {
-            animation: pulse-red 0.5s ease-in-out infinite;
-        }
-        .pulse-green {
-            animation: pulse-green 0.5s ease-in-out infinite;
+        .legend-marker.green {
+            background-image: url('https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png');
         }
     </style>
 </head>
@@ -248,7 +230,7 @@
         </header>
 
         <div class="demo-banner">
-            <strong>DEMONSTRATION APP</strong> - Using fake data with fictional names and real New Orleans addresses
+            <strong>DEMO</strong> - Fictional names with real New Orleans addresses
         </div>
 
         <div class="stats-row">
@@ -299,17 +281,17 @@
 
         <div class="legend">
             <div class="legend-item">
-                <div class="legend-dot red"></div>
+                <div class="legend-marker red"></div>
                 <span>Needs Sign</span>
             </div>
             <div class="legend-item">
-                <div class="legend-dot green"></div>
+                <div class="legend-marker green"></div>
                 <span>Delivered</span>
             </div>
         </div>
 
         <footer>
-            <p>Campaign Sign Tracker - Portfolio Demo</p>
+            <p>Sign Tracker Demo</p>
         </footer>
     </div>
 
@@ -320,33 +302,31 @@
         let markers = {};
         let map;
 
+        // Marker icons (same as working R Shiny version)
+        const redIcon = L.icon({
+            iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png',
+            shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+            iconSize: [25, 41],
+            iconAnchor: [12, 41],
+            popupAnchor: [1, -34],
+            shadowSize: [41, 41]
+        });
+
+        const greenIcon = L.icon({
+            iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png',
+            shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+            iconSize: [25, 41],
+            iconAnchor: [12, 41],
+            popupAnchor: [1, -34],
+            shadowSize: [41, 41]
+        });
+
         // Initialize map
         function initMap() {
             map = L.map('map').setView([29.95, -90.07], 11);
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
             }).addTo(map);
-        }
-
-        // Create pulsing marker icon
-        function createMarkerIcon(isDelivered) {
-            const color = isDelivered ? '#4caf50' : '#f44336';
-            const borderColor = isDelivered ? '#1b5e20' : '#b71c1c';
-            const pulseClass = isDelivered ? 'pulse-green' : 'pulse-red';
-
-            return L.divIcon({
-                html: `<div class="${pulseClass}" style="
-                    width: 22px;
-                    height: 22px;
-                    background-color: ${color};
-                    border: 3px solid ${borderColor};
-                    border-radius: 50%;
-                    box-shadow: 0 0 12px ${color};
-                "></div>`,
-                className: '',
-                iconSize: [22, 22],
-                iconAnchor: [11, 11]
-            });
         }
 
         // Load and parse CSV data
@@ -369,6 +349,8 @@
                 updateUI();
             } catch (error) {
                 console.error('Error loading data:', error);
+                document.getElementById('selected-info').innerHTML =
+                    '<p style="color: #c62828;">Error loading data. Make sure you are running from a web server.</p>';
             }
         }
 
@@ -400,7 +382,7 @@
                 if (v.latitude && v.longitude) {
                     const isDelivered = v.has_sign === 1;
                     const marker = L.marker([v.latitude, v.longitude], {
-                        icon: createMarkerIcon(isDelivered)
+                        icon: isDelivered ? greenIcon : redIcon
                     });
 
                     const popupContent = `
@@ -433,7 +415,6 @@
                     <td>${v.city}</td>
                     <td><span class="status-icon ${isDelivered ? 'delivered' : 'pending'}">${isDelivered ? '✓' : '○'}</span></td>
                 `;
-                row.style.cursor = 'pointer';
                 row.onclick = () => selectVolunteer(v.id);
                 tbody.appendChild(row);
             });
@@ -490,7 +471,6 @@
         document.addEventListener('DOMContentLoaded', () => {
             initMap();
             loadData();
-
             document.getElementById('toggle-btn').addEventListener('click', toggleStatus);
         });
     </script>
