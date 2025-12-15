@@ -1,0 +1,37 @@
+############################################################################################
+# FAKE DATA - FOR DEMONSTRATION PURPOSES ONLY
+# This file contains FICTIONAL names with REAL New Orleans addresses for demo purposes.
+# All volunteer information (names, phone numbers, emails) is completely fabricated.
+# DO NOT use this data for any real-world purposes.
+############################################################################################
+id,name,phone,email,street_address,city,state,zip,pref_yard_sign,has_sign,sign_delivered_date,latitude,longitude
+1,Marcus Johnson,504-555-0101,marcus.j@fakeemail.com,1234 Magazine Street,New Orleans,LA,70130,1,1,2025-12-01,29.9295,-90.0823
+2,Angela Williams,504-555-0102,angela.w@fakeemail.com,456 St. Charles Avenue,New Orleans,LA,70130,1,0,,29.9276,-90.0838
+3,David Chen,504-555-0103,david.c@fakeemail.com,789 Frenchmen Street,New Orleans,LA,70116,1,1,2025-12-03,29.9641,-90.0553
+4,Tamika Brown,504-555-0104,tamika.b@fakeemail.com,321 Esplanade Avenue,New Orleans,LA,70116,1,0,,29.9647,-90.0591
+5,Robert Martinez,504-555-0105,robert.m@fakeemail.com,555 Tchoupitoulas Street,New Orleans,LA,70130,1,1,2025-12-02,29.9351,-90.0699
+6,Jennifer Davis,504-555-0106,jennifer.d@fakeemail.com,888 Carrollton Avenue,New Orleans,LA,70118,1,0,,29.9559,-90.1286
+7,Michael Thompson,504-555-0107,michael.t@fakeemail.com,1010 Napoleon Avenue,New Orleans,LA,70115,1,1,2025-12-05,29.9263,-90.0974
+8,Latoya Jackson,504-555-0108,latoya.j@fakeemail.com,2020 Claiborne Avenue,New Orleans,LA,70113,1,0,,29.9521,-90.0821
+9,Christopher Lee,504-555-0109,chris.l@fakeemail.com,3030 Canal Street,New Orleans,LA,70119,1,1,2025-12-04,29.9642,-90.0877
+10,Brittany Garcia,504-555-0110,brittany.g@fakeemail.com,1515 Prytania Street,New Orleans,LA,70130,1,0,,29.9305,-90.0808
+11,James Wilson,504-555-0111,james.w@fakeemail.com,424 Bourbon Street,New Orleans,LA,70130,1,1,2025-12-06,29.9579,-90.0674
+12,Monique Taylor,504-555-0112,monique.t@fakeemail.com,600 Decatur Street,New Orleans,LA,70130,1,0,,29.9588,-90.0614
+13,Daniel Anderson,504-555-0113,daniel.a@fakeemail.com,1800 Gentilly Boulevard,New Orleans,LA,70119,1,1,2025-12-07,29.9774,-90.0621
+14,Jasmine Robinson,504-555-0114,jasmine.r@fakeemail.com,2500 Louisiana Avenue,New Orleans,LA,70115,1,0,,29.9246,-90.1020
+15,Kevin White,504-555-0115,kevin.w@fakeemail.com,3200 Elysian Fields Avenue,New Orleans,LA,70122,1,1,2025-12-08,29.9865,-90.0358
+16,Courtney Harris,504-555-0116,courtney.h@fakeemail.com,4100 Paris Avenue,New Orleans,LA,70122,1,0,,29.9887,-90.0342
+17,Brandon Moore,504-555-0117,brandon.m@fakeemail.com,510 Chartres Street,New Orleans,LA,70130,1,1,2025-12-09,29.9571,-90.0648
+18,Alicia Clark,504-555-0118,alicia.c@fakeemail.com,720 Royal Street,New Orleans,LA,70116,1,0,,29.9608,-90.0643
+19,Anthony Lewis,504-555-0119,anthony.l@fakeemail.com,1400 Baronne Street,New Orleans,LA,70113,1,1,2025-12-10,29.9417,-90.0773
+20,Nicole Adams,504-555-0120,nicole.a@fakeemail.com,2200 St. Bernard Avenue,New Orleans,LA,70119,1,0,,29.9738,-90.0614
+21,Eric Scott,504-555-0121,eric.s@fakeemail.com,3500 Veterans Memorial Boulevard,Metairie,LA,70002,1,1,2025-12-11,29.9978,-90.1701
+22,Kimberly Young,504-555-0122,kimberly.y@fakeemail.com,850 N. Rampart Street,New Orleans,LA,70116,1,0,,29.9655,-90.0661
+23,Steven King,504-555-0123,steven.k@fakeemail.com,1900 Simon Bolivar Avenue,New Orleans,LA,70113,1,1,2025-12-12,29.9396,-90.0905
+24,Vanessa Wright,504-555-0124,vanessa.w@fakeemail.com,2750 Nashville Avenue,New Orleans,LA,70115,1,0,,29.9285,-90.1196
+25,Patrick Green,504-555-0125,patrick.g@fakeemail.com,4500 Chef Menteur Highway,New Orleans,LA,70126,1,1,2025-12-13,30.0113,-89.9702
+26,Crystal Baker,504-555-0126,crystal.b@fakeemail.com,1100 Poydras Street,New Orleans,LA,70112,1,0,,29.9487,-90.0746
+27,Raymond Hall,504-555-0127,raymond.h@fakeemail.com,600 Carondelet Street,New Orleans,LA,70130,1,0,,29.9460,-90.0716
+28,Denise Rivera,504-555-0128,denise.r@fakeemail.com,2100 Tulane Avenue,New Orleans,LA,70119,1,0,,29.9607,-90.0851
+29,Marcus Campbell,504-555-0129,marcus.c@fakeemail.com,3300 Airline Drive,Metairie,LA,70001,1,1,2025-12-14,29.9943,-90.1879
+30,Tiffany Mitchell,504-555-0130,tiffany.m@fakeemail.com,450 Julia Street,New Orleans,LA,70130,1,0,,29.9442,-90.0671

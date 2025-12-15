@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campaign Sign Delivery Tracker</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        h1 {
+            color: #1a1a2e;
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+        .demo-banner {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+        .demo-banner strong {
+            color: #856404;
+        }
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .stat-box {
+            padding: 25px 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .stat-box h2 {
+            font-size: 2.5rem;
+            margin-bottom: 5px;
+        }
+        .stat-box p {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        .stat-total {
+            background: #e3f2fd;
+            border: 2px solid #2196f3;
+            color: #1565c0;
+        }
+        .stat-pending {
+            background: #ffebee;
+            border: 2px solid #f44336;
+            color: #c62828;
+        }
+        .stat-delivered {
+            background: #e8f5e9;
+            border: 2px solid #4caf50;
+            color: #2e7d32;
+        }
+        .main-content {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+        }
+        @media (max-width: 900px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            .stats-row {
+                grid-template-columns: 1fr;
+            }
+        }
+        #map {
+            height: 500px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .info-box {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .info-box h3 {
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            color: #1a1a2e;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+        #selected-info {
+            min-height: 120px;
+        }
+        #selected-info p {
+            margin: 5px 0;
+        }
+        #selected-info .name {
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: #1a1a2e;
+        }
+        #selected-info .status {
+            margin-top: 10px;
+            font-weight: bold;
+        }
+        #selected-info .status.delivered {
+            color: #2e7d32;
+        }
+        #selected-info .status.pending {
+            color: #c62828;
+        }
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 10px;
+        }
+        .btn-primary {
+            background: #2196f3;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #1976d2;
+        }
+        .btn-primary:disabled {
+            background: #90caf9;
+            cursor: not-allowed;
+        }
+        .delivery-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .delivery-list table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+        .delivery-list th,
+        .delivery-list td {
+            padding: 8px 10px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        .delivery-list th {
+            background: #f8f9fa;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+        }
+        .delivery-list tr:hover {
+            background: #f5f5f5;
+        }
+        .status-icon {
+            font-size: 1.2rem;
+        }
+        .status-icon.delivered {
+            color: #4caf50;
+        }
+        .status-icon.pending {
+            color: #f44336;
+        }
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-size: 0.9rem;
+        }
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 15px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .legend-dot {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+        }
+        .legend-dot.red {
+            background: #f44336;
+            box-shadow: 0 0 8px #f44336;
+        }
+        .legend-dot.green {
+            background: #4caf50;
+            box-shadow: 0 0 8px #4caf50;
+        }
+
+        /* Pulsing marker animations */
+        @keyframes pulse-red {
+            0% { transform: scale(1); opacity: 0.9; }
+            50% { transform: scale(1.3); opacity: 0.6; }
+            100% { transform: scale(1); opacity: 0.9; }
+        }
+        @keyframes pulse-green {
+            0% { transform: scale(1); opacity: 0.9; }
+            50% { transform: scale(1.2); opacity: 0.7; }
+            100% { transform: scale(1); opacity: 0.9; }
+        }
+        .pulse-red {
+            animation: pulse-red 0.5s ease-in-out infinite;
+        }
+        .pulse-green {
+            animation: pulse-green 0.5s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Yard Sign Delivery Tracker</h1>
+        </header>
+
+        <div class="demo-banner">
+            <strong>DEMONSTRATION APP</strong> - Using fake data with fictional names and real New Orleans addresses
+        </div>
+
+        <div class="stats-row">
+            <div class="stat-box stat-total">
+                <h2 id="total-count">0</h2>
+                <p>Total Requests</p>
+            </div>
+            <div class="stat-box stat-pending">
+                <h2 id="pending-count">0</h2>
+                <p>Pending Delivery</p>
+            </div>
+            <div class="stat-box stat-delivered">
+                <h2 id="delivered-count">0</h2>
+                <p>Delivered</p>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div id="map"></div>
+
+            <div class="sidebar">
+                <div class="info-box">
+                    <h3>Selected Location</h3>
+                    <div id="selected-info">
+                        <p style="color: #666; font-style: italic;">Click a marker on the map to view details</p>
+                    </div>
+                    <button id="toggle-btn" class="btn btn-primary" disabled>Toggle Delivery Status</button>
+                </div>
+
+                <div class="info-box">
+                    <h3>Delivery List</h3>
+                    <div class="delivery-list">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>City</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="delivery-table">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-dot red"></div>
+                <span>Needs Sign</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-dot green"></div>
+                <span>Delivered</span>
+            </div>
+        </div>
+
+        <footer>
+            <p>Campaign Sign Tracker - Portfolio Demo</p>
+        </footer>
+    </div>
+
+    <script>
+        // Global state
+        let volunteers = [];
+        let selectedId = null;
+        let markers = {};
+        let map;
+
+        // Initialize map
+        function initMap() {
+            map = L.map('map').setView([29.95, -90.07], 11);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+        }
+
+        // Create pulsing marker icon
+        function createMarkerIcon(isDelivered) {
+            const color = isDelivered ? '#4caf50' : '#f44336';
+            const borderColor = isDelivered ? '#1b5e20' : '#b71c1c';
+            const pulseClass = isDelivered ? 'pulse-green' : 'pulse-red';
+
+            return L.divIcon({
+                html: `<div class="${pulseClass}" style="
+                    width: 22px;
+                    height: 22px;
+                    background-color: ${color};
+                    border: 3px solid ${borderColor};
+                    border-radius: 50%;
+                    box-shadow: 0 0 12px ${color};
+                "></div>`,
+                className: '',
+                iconSize: [22, 22],
+                iconAnchor: [11, 11]
+            });
+        }
+
+        // Load and parse CSV data
+        async function loadData() {
+            try {
+                const response = await fetch('data/FAKE_DATA_volunteers.csv');
+                const csvText = await response.text();
+
+                // Remove comment lines
+                const lines = csvText.split('\n').filter(line => !line.startsWith('#'));
+                const cleanCsv = lines.join('\n');
+
+                const result = Papa.parse(cleanCsv, {
+                    header: true,
+                    dynamicTyping: true,
+                    skipEmptyLines: true
+                });
+
+                volunteers = result.data.filter(v => v.pref_yard_sign === 1);
+                updateUI();
+            } catch (error) {
+                console.error('Error loading data:', error);
+            }
+        }
+
+        // Update all UI elements
+        function updateUI() {
+            updateStats();
+            updateMarkers();
+            updateTable();
+        }
+
+        // Update statistics
+        function updateStats() {
+            const total = volunteers.length;
+            const delivered = volunteers.filter(v => v.has_sign === 1).length;
+            const pending = total - delivered;
+
+            document.getElementById('total-count').textContent = total;
+            document.getElementById('pending-count').textContent = pending;
+            document.getElementById('delivered-count').textContent = delivered;
+        }
+
+        // Update map markers
+        function updateMarkers() {
+            // Clear existing markers
+            Object.values(markers).forEach(marker => map.removeLayer(marker));
+            markers = {};
+
+            volunteers.forEach(v => {
+                if (v.latitude && v.longitude) {
+                    const isDelivered = v.has_sign === 1;
+                    const marker = L.marker([v.latitude, v.longitude], {
+                        icon: createMarkerIcon(isDelivered)
+                    });
+
+                    const popupContent = `
+                        <b>${v.name}</b><br>
+                        ${v.street_address}<br>
+                        ${v.city}, ${v.state} ${v.zip}<br>
+                        <br>Phone: ${v.phone}<br>
+                        Status: ${isDelivered ? 'DELIVERED' : 'PENDING'}
+                    `;
+                    marker.bindPopup(popupContent);
+
+                    marker.on('click', () => selectVolunteer(v.id));
+
+                    marker.addTo(map);
+                    markers[v.id] = marker;
+                }
+            });
+        }
+
+        // Update delivery table
+        function updateTable() {
+            const tbody = document.getElementById('delivery-table');
+            tbody.innerHTML = '';
+
+            volunteers.forEach(v => {
+                const row = document.createElement('tr');
+                const isDelivered = v.has_sign === 1;
+                row.innerHTML = `
+                    <td>${v.name}</td>
+                    <td>${v.city}</td>
+                    <td><span class="status-icon ${isDelivered ? 'delivered' : 'pending'}">${isDelivered ? '✓' : '○'}</span></td>
+                `;
+                row.style.cursor = 'pointer';
+                row.onclick = () => selectVolunteer(v.id);
+                tbody.appendChild(row);
+            });
+        }
+
+        // Select a volunteer
+        function selectVolunteer(id) {
+            selectedId = id;
+            const v = volunteers.find(vol => vol.id === id);
+            if (!v) return;
+
+            const isDelivered = v.has_sign === 1;
+            const statusClass = isDelivered ? 'delivered' : 'pending';
+            const statusText = isDelivered ? 'DELIVERED' : 'PENDING';
+
+            document.getElementById('selected-info').innerHTML = `
+                <p class="name">${v.name}</p>
+                <p>${v.street_address}</p>
+                <p>${v.city}, ${v.state} ${v.zip}</p>
+                <p>Phone: ${v.phone}</p>
+                <p class="status ${statusClass}">Status: ${statusText}</p>
+            `;
+
+            document.getElementById('toggle-btn').disabled = false;
+
+            // Pan to marker and open popup
+            if (markers[id]) {
+                map.panTo([v.latitude, v.longitude]);
+                markers[id].openPopup();
+            }
+        }
+
+        // Toggle delivery status
+        function toggleStatus() {
+            if (!selectedId) return;
+
+            const v = volunteers.find(vol => vol.id === selectedId);
+            if (!v) return;
+
+            // Toggle status
+            v.has_sign = v.has_sign === 1 ? 0 : 1;
+            if (v.has_sign === 1) {
+                v.sign_delivered_date = new Date().toISOString().split('T')[0];
+            } else {
+                v.sign_delivered_date = null;
+            }
+
+            // Update UI
+            updateUI();
+            selectVolunteer(selectedId);
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            initMap();
+            loadData();
+
+            document.getElementById('toggle-btn').addEventListener('click', toggleStatus);
+        });
+    </script>
+</body>
+</html>
